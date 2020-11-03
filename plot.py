@@ -48,7 +48,7 @@ np.random.seed(args.seed)
 
 system = importlib.import_module('system_'+args.task)
 f, B, _, num_dim_x, num_dim_control = get_system_wrapper(system)
-controller_1 = get_controller_wrapper(args.pretrained)
+controller = get_controller_wrapper(args.pretrained)
 
 if __name__ == '__main__':
     config = importlib.import_module('config_'+args.task)
@@ -115,7 +115,7 @@ if __name__ == '__main__':
             plt.plot(t, [x[plot_dim,0] for x in xstar][:-1], 'k')
         plt.xlabel("t")
         plt.ylabel("x")
-    elif args.plot_type=='error'
+    elif args.plot_type=='error':
         plt.xlabel("t")
         plt.ylabel("error")
 
