@@ -1,4 +1,14 @@
+import contextlib
 import numpy as np
+
+@contextlib.contextmanager
+def temp_seed(seed):
+    state = np.random.get_state()
+    np.random.seed(seed)
+    try:
+        yield
+    finally:
+        np.random.set_state(state)
 
 def EulerIntegrate(controller, f, B, xstar, ustar, xinit, t_max = 10, dt = 0.05, with_tracking = False, sigma = 0., noise_bound = None):
     t = np.arange(0, t_max, dt)

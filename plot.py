@@ -107,9 +107,9 @@ if __name__ == '__main__':
     elif args.plot_type=='3D':
         plt.plot([x[args.plot_dims[0],0] for x in xstar], [x[args.plot_dims[1],0] for x in xstar], [x[args.plot_dims[2],0] for x in xstar], 'k', label='Reference')
         plt.plot(xstar_0[args.plot_dims[0]], xstar_0[args.plot_dims[1]], xstar_0[args.plot_dims[2]], 'ro', markersize=3.)
-        plt.xlabel("x")
-        plt.ylabel("y")
-        plt.zlabel("z")
+        ax.set_xlabel('x')
+        ax.set_ylabel('y')
+        ax.set_zlabel('z')
     elif args.plot_type=='time':
         for plot_dim in args.plot_dims:
             plt.plot(t, [x[plot_dim,0] for x in xstar][:-1], 'k')
