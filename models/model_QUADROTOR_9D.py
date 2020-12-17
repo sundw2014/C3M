@@ -2,62 +2,10 @@ import torch
 from torch import nn
 from torch.autograd import grad
 import numpy as np
-from tianshou.data import to_torch
 
 effective_dim_start = 3
 effective_dim_end = 9
 
-class ActorProb(nn.Module):
-    def __init__(self, n, m, device='cpu'):
-        super().__init__()
-        self.device = device
-        self.n = n
-        self.m = m
-        c = 3 * n
-        self.model_w1 = torch.nn.Sequential(
-            torch.nn.Linear(2*(effective_dim_end - effective_dim_start), 128, bias=True),
-            torch.nn.Tanh(),
-            torch.nn.Linear(128, c*n, bias=True))
-
-        self.model_w2 = torch.nn.Sequential(
-            torch.nn.Linear(2*(effective_dim_end - effective_dim_start), 128, bias=True),
-            torch.nn.Tanh(),
-            torch.nn.Linear(128, m*c, bias=True))
-
-        self.sigma = nn.Parameter(torch.zeros(m, 1))
-
-        self.to(device)
-
-    def forward(self, s, state=None, info={}):
-        self.device = next(self.parameters()).device
-        s = to_torch(s, device=self.device, dtype=torch.float32)
-        s = s.flatten(1)
-
-        bs = s.shape[0]
-        w1 = self.model_w1(torch.cat([s[:, effective_dim_start:effective_dim_end], s[:, self.n+effective_dim_start:self.n+effective_dim_end]], dim=1)).reshape(bs, -1, self.n)
-        w2 = self.model_w2(torch.cat([s[:, effective_dim_start:effective_dim_end], s[:, self.n+effective_dim_start:self.n+effective_dim_end]], dim=1)).reshape(bs, self.m, -1)
-        mu = w2.matmul(torch.tanh(w1.matmul((s[:,:self.n] - s[:,self.n:]).unsqueeze(-1)))).squeeze(-1)
-
-        shape = [1] * len(mu.shape)
-        shape[1] = -1
-        sigma = (self.sigma.view(shape) + torch.zeros_like(mu)).exp()
-
-        return (mu, sigma), None
-
-# closure for RL
-class CONTROLLER_FUNC(nn.Module):
-    """docstring for CONTROLLER_FUNC."""
-
-    def __init__(self, actor):
-        super(CONTROLLER_FUNC, self).__init__()
-        self.actor = actor
-
-    def forward(self, x, xe, uref):
-        (mu, _), _ = self.actor(torch.cat([x, x-xe], dim=1).squeeze(-1))
-        mu = mu.unsqueeze(-1) + uref
-        return mu
-
-# closure for ours
 class U_FUNC(nn.Module):
     """docstring for U_FUNC."""
 

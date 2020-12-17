@@ -2,12 +2,10 @@ import torch
 from torch import nn
 from torch.autograd import grad
 import numpy as np
-from tianshou.data import to_torch
 
 effective_dim_start = 3
 effective_dim_end = 8
 
-# closure for ours
 class U_FUNC(nn.Module):
     """docstring for U_FUNC."""
 
