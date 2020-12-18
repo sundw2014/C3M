@@ -13,8 +13,8 @@ lim = 1.
 XE_MIN = np.array([-lim, -lim, -lim, -lim]).reshape(-1,1)
 XE_MAX = np.array([lim, lim, lim, lim]).reshape(-1,1)
 
-UREF_MIN = np.array([-15., -3.]).reshape(-1,1)
-UREF_MAX = np.array([ 15.,  3.]).reshape(-1,1)
+UREF_MIN = np.array([-3., -3.]).reshape(-1,1)
+UREF_MAX = np.array([ 3.,  3.]).reshape(-1,1)
 
 # for sampling ref
 X_INIT_MIN = np.array([-2., -2., -1., 1.5])
