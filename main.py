@@ -18,19 +18,19 @@ np.random.seed(1024)
 
 parser = argparse.ArgumentParser(description="")
 parser.add_argument('--task', type=str,
-                        default='CAR')
-parser.add_argument('--no_cuda', dest='use_cuda', action='store_false')
+                        default='CAR', help='Name of the model.')
+parser.add_argument('--no_cuda', dest='use_cuda', action='store_false', help='Disable cuda.')
 parser.set_defaults(use_cuda=True)
-parser.add_argument('--bs', type=int, default=1024)
-parser.add_argument('--num_train', type=int, default=131072) # 4096 * 32
-parser.add_argument('--num_test', type=int, default=32768) # 1024 * 32
-parser.add_argument('--lr', dest='learning_rate', type=float, default=0.001)
-parser.add_argument('--epochs', type=int, default=15)
-parser.add_argument('--lr_step', type=int, default=5)
-parser.add_argument('--lambda', type=float, dest='_lambda', default=0.5)
-parser.add_argument('--w_ub', type=float, default=10)
-parser.add_argument('--w_lb', type=float, default=0.1)
-parser.add_argument('--log', type=str)
+parser.add_argument('--bs', type=int, default=1024, help='Batch size.')
+parser.add_argument('--num_train', type=int, default=131072, help='Number of samples for training.') # 4096 * 32
+parser.add_argument('--num_test', type=int, default=32768, help='Number of samples for testing.') # 1024 * 32
+parser.add_argument('--lr', dest='learning_rate', type=float, default=0.001, help='Base learning rate.')
+parser.add_argument('--epochs', type=int, default=15, help='Number of training epochs.')
+parser.add_argument('--lr_step', type=int, default=5, help='')
+parser.add_argument('--lambda', type=float, dest='_lambda', default=0.5, help='Convergence rate: lambda')
+parser.add_argument('--w_ub', type=float, default=10, help='Upper bound of the eigenvalue of the dual metric.')
+parser.add_argument('--w_lb', type=float, default=0.1, help='Lower bound of the eigenvalue of the dual metric.')
+parser.add_argument('--log', type=str, help='Path to a directory for storing the log.')
 
 args = parser.parse_args()
 
