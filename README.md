@@ -32,7 +32,7 @@ optional arguments:
   --log LOG             Path to a directory for storing the log.
 ```
 
-Taking the 8-dimensional quadrotor model as an example, run the following command to learn a controller.
+For example, run the following command to learn a controller for the 8-dimensional quadrotor model.
 ```
 mkdir log_QUADROTOR_8D
 python main.py --log log_QUADROTOR_8D --task QUADROTOR_8D
