@@ -21,13 +21,10 @@ class U_FUNC(nn.Module):
         # u: B x m x 1
         bs = x.shape[0]
 
-        # w1_xxref = self.model_u_w1(torch.cat([x,(x-xe)],dim=1).squeeze(-1)).reshape(bs, self.num_dim_control, -1)
-        # w1_xx = self.model_u_w1(torch.cat([x,x],dim=1).squeeze(-1)).reshape(bs, self.num_dim_control, -1)
-        # u = w1_xxref - w1_xx + uref
+        w1 = self.model_u_w1(torch.cat([x[:,effective_dim_start:effective_dim_end,:],(x-xe)[:,effective_dim_start:effective_dim_end,:]],dim=1).squeeze(-1)).reshape(bs, -1, self.num_dim_x)
+        w2 = self.model_u_w2(torch.cat([x[:,effective_dim_start:effective_dim_end,:],(x-xe)[:,effective_dim_start:effective_dim_end,:]],dim=1).squeeze(-1)).reshape(bs, self.num_dim_control, -1)
+        u = w2.matmul(torch.tanh(w1.matmul(xe))) + uref
 
-        w1_xe = self.model_u_w1(torch.cat([x,xe],dim=1).squeeze(-1)).reshape(bs, self.num_dim_control, -1)
-        w1_x0 = self.model_u_w1(torch.cat([x,torch.zeros(xe.shape).type(xe.type())],dim=1).squeeze(-1)).reshape(bs, self.num_dim_control, -1)
-        u = w1_xe - w1_x0 + uref
         return u
 
 def get_model(num_dim_x, num_dim_control, w_lb, use_cuda = False):
@@ -44,14 +41,14 @@ def get_model(num_dim_x, num_dim_control, w_lb, use_cuda = False):
 
     c = 3 * num_dim_x
     model_u_w1 = torch.nn.Sequential(
-        torch.nn.Linear(2*num_dim_x, 128, bias=True),
+        torch.nn.Linear(2*dim, 128, bias=True),
         torch.nn.Tanh(),
-        torch.nn.Linear(128, num_dim_control, bias=True))
+        torch.nn.Linear(128, c*num_dim_x, bias=True))
 
     model_u_w2 = torch.nn.Sequential(
-        torch.nn.Linear(2*num_dim_x, 128, bias=True),
+        torch.nn.Linear(2*dim, 128, bias=True),
         torch.nn.Tanh(),
-        torch.nn.Linear(128, num_dim_control, bias=True))
+        torch.nn.Linear(128, num_dim_control*c, bias=True))
 
     if use_cuda:
         model_W = model_W.cuda()
@@ -63,12 +60,7 @@ def get_model(num_dim_x, num_dim_control, w_lb, use_cuda = False):
         bs = x.shape[0]
         x = x.squeeze(-1)
 
-        W = model_W(x[:,effective_dim_start:effective_dim_end]).view(bs, num_dim_x, num_dim_x)
-        Wbot = model_Wbot(torch.ones(bs, 1).type(x.type())).view(bs, num_dim_x-num_dim_control, num_dim_x-num_dim_control)
-        W[:, 0:num_dim_x-num_dim_control, 0:num_dim_x-num_dim_control] = Wbot
-        W[:, num_dim_x-num_dim_control::, 0:num_dim_x-num_dim_control] = 0
-
-        # W = model_W(x[:, effective_dim_start:effective_dim_end]).view(bs, num_dim_x, num_dim_x)
+        W = model_W(x[:, effective_dim_start:effective_dim_end]).view(bs, num_dim_x, num_dim_x)
 
         W = W.transpose(1,2).matmul(W)
         W = W + w_lb * torch.eye(num_dim_x).view(1, num_dim_x, num_dim_x).type(x.type())
